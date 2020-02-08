@@ -7,6 +7,7 @@
 
         public string Path { get; set; }
         public string Info { get; set; }
+        public long Size { get; set; }
 
         public string Directory
         {

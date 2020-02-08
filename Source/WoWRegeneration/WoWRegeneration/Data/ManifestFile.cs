@@ -64,6 +64,7 @@ namespace WoWRegeneration.Data
                         continue;
                     file.Url = line;
                     file.Info = GetFileInfo(repository, line);
+                    file.Size = GetFileSize(repository, line);
                     if (IsAcceptedFile(repository, file))
                         tmp.Add(file);
                 }
@@ -135,6 +136,22 @@ namespace WoWRegeneration.Data
                     return next.Replace("path=locale_", "");
             }
             return null;
+        }
+
+        private long GetFileSize(WoWRepository repository, string line)
+        {
+            int index = Lines.IndexOf(line);
+            for (int n = 1; n <= 5; n++)
+            {
+                string next = Lines[index + n];
+                if (IsLineARepositorFile(repository, next))
+                    return 0;
+                if (next.StartsWith("path=locale_"))
+                    return 0;
+                if (next.StartsWith("size="))
+                    return long.Parse(next.Replace("size=", ""));
+            }
+            return 0;
         }
 
         private bool IsLineARepositorFile(WoWRepository repository, string line)
