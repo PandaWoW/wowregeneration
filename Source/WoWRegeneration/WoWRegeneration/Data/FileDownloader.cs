@@ -43,23 +43,43 @@ namespace WoWRegeneration.Data
         public void DownloadNextFile()
         {
             Console.Clear();
+
             if (CurrentFileIndex >= Files.Count)
             {
                 CurrentFile = null;
                 return;
             }
+
             CurrentFile = Files[CurrentFileIndex];
+
             // Create Directories
-            if (!Directory.Exists(BasePath + CurrentFile.Directory))
+            if (!Directory.Exists(Path.Combine(BasePath, CurrentFile.Directory)))
                 Directory.CreateDirectory(BasePath + CurrentFile.Directory);
+
+            string filePath = Path.Combine(BasePath, CurrentFile.Path);
+            
             // Delete unfinished downloads
-            if (File.Exists(BasePath + CurrentFile.Path))
-                File.Delete(BasePath + CurrentFile.Path);
+            if (File.Exists(filePath))
+            {
+                long fileSize;
+                using (FileStream stream = File.OpenRead(filePath))
+                    fileSize = stream.Length;
+                
+                if (fileSize != CurrentFile.Size)
+                    File.Delete(filePath);
+                else
+                {
+                    CurrentFileIndex += 1;
+                    Progress.FileComplete();
+                    DownloadNextFile();
+                    return;
+                }
+            }
 
             var client = new WebClient();
             client.DownloadProgressChanged += DownloadProgressChanged;
             client.DownloadFileCompleted += DownloadFileCompleted;
-            client.DownloadFileAsync(new Uri(CurrentFile.Url), BasePath + CurrentFile.Path);
+            client.DownloadFileAsync(new Uri(CurrentFile.Url), filePath);
         }
 
         private void DownloadProgressChanged(object sender, DownloadProgressChangedEventArgs e)
@@ -72,7 +92,7 @@ namespace WoWRegeneration.Data
         {
             WoWRegeneration.CurrentSession.CompletedFiles.Add(CurrentFile.Path);
             WoWRegeneration.CurrentSession.SaveSession();
-            CurrentFileIndex = CurrentFileIndex + 1;
+            CurrentFileIndex += 1;
             Progress.FileComplete();
             DownloadNextFile();
         }

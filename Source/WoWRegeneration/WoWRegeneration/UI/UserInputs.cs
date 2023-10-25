@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using WoWRegeneration.Data;
 using WoWRegeneration.Repositories;
 
@@ -10,6 +11,9 @@ namespace WoWRegeneration.UI
     {
         public static WoWRepository SelectRepository()
         {
+            if (RepositoriesManager.Repositories.Count == 1)
+                return RepositoriesManager.Repositories.First();
+
             Program.Log("Which version of World of Warcraft you want to restore :");
             Program.Log();
             foreach (WoWRepository item in RepositoriesManager.Repositories)

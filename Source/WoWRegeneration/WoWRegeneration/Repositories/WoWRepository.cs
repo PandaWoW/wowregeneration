@@ -31,7 +31,8 @@ namespace WoWRegeneration.Repositories
         /// <returns>default local directory to download</returns>
         public string GetDefaultDirectory()
         {
-            return "WoW-" + GetBuild() + Path.DirectorySeparatorChar;
+            return "";
+            //return "WoW-" + GetBuild() + Path.DirectorySeparatorChar;
         }
 
         public string GetBuild()

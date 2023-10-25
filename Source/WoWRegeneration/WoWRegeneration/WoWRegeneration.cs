@@ -36,7 +36,7 @@ namespace WoWRegeneration
             WoWRepository repository = UserInputs.SelectRepository();
             ManifestFile manifest = ManifestFile.FromRepository(repository);
             string locale = UserInputs.SelectLocale(manifest);
-            string os = UserInputs.SelectOs();
+            string os = /*UserInputs.SelectOs()*/"Win";
 
             CurrentSession = new Session(repository.GetMFilName(), locale, os);
             CurrentSession.SaveSession();
