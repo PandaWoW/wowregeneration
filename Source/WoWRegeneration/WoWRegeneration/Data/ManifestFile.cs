@@ -11,49 +11,42 @@ namespace WoWRegeneration.Data
     {
         private const string LocaleDetectLineVersion2 = "serverpath=locale_";
         private const string LocaleDetectLineVersion3 = "tag=";
-        private readonly string[] LocaleDetectLineVersion3IgnoredTags = new[] { "base", "OSX", "Win", "ALT", "EXP1", "EXP2", "EXP3", "EXP4" };
+        private readonly string[] LocaleDetectLineVersion3IgnoredTags = { "base", "OSX", "Win", "ALT", "EXP1", "EXP2", "EXP3", "EXP4",  "enTW", "enCN" };
 
         private int Version { get; set; }
 
-        public ManifestFile()
-        {
-            Lines = new List<string>();
-        }
-
-        private List<string> Lines { get; set; }
+        private List<string> Lines { get; } = new List<string>();
 
         public List<string> GetLocales()
         {
+            List<string> tmp = new List<string>();
+
             if (Version == 2)
-            {
-                return
-                    (from line in Lines where line.StartsWith(LocaleDetectLineVersion2) select line.Replace(LocaleDetectLineVersion2, ""))
-                        .ToList();
-            }
+                tmp = (from line in Lines where line.StartsWith(LocaleDetectLineVersion2) select line.Replace(LocaleDetectLineVersion2, "")).ToList();
+
             if (Version == 3)
             {
-                var tmp = new List<string>();
                 foreach (string line in Lines)
                 {
                     if (line.StartsWith(LocaleDetectLineVersion3))
                     {
                         string tagValue = line.Replace(LocaleDetectLineVersion3, "");
+
                         if (!LocaleDetectLineVersion3IgnoredTags.Contains(tagValue) && !tmp.Contains(tagValue))
-                        {
                             tmp.Add(tagValue);
-                        }
                     }
                 }
-                return tmp;
             }
-            return null;
+
+            tmp.Add("All");
+            return tmp;
         }
 
         public List<FileObject> GenerateFileList()
         {
             WoWRepository repository = RepositoriesManager.GetRepositoryByMfil(WoWRegeneration.CurrentSession.MFil);
 
-            var tmp = new List<FileObject>();
+            HashSet<FileObject> tmp = new HashSet<FileObject>();
 
             foreach (string line in Lines)
             {
@@ -70,7 +63,7 @@ namespace WoWRegeneration.Data
                 }
             }
 
-            return tmp;
+            return tmp.ToList();
         }
 
         private bool IsAcceptedFile(WoWRepository repository, FileObject file)
@@ -81,11 +74,7 @@ namespace WoWRegeneration.Data
             if (WoWRegeneration.CurrentSession.Os == "OSX" && file.Filename == "base-Win.MPQ")
                 return false;
 
-            if (file.Filename == "alternate.MPQ" && file.Info != WoWRegeneration.CurrentSession.Locale)
-                return false;
-
-            if (WoWRegeneration.CurrentSession.CompletedFiles.Contains(file.Path) &&
-                File.Exists(Program.ExecutionPath + repository.GetDefaultDirectory() + file.Path))
+            if (WoWRegeneration.CurrentSession.CompletedFiles.Contains(file.Path) && File.Exists(Program.ExecutionPath + repository.GetDefaultDirectory() + file.Path))
             {
                 Program.Log("Skipping " + file.Filename + " allready downloaded", ConsoleColor.DarkGray);
                 return false;
@@ -98,19 +87,17 @@ namespace WoWRegeneration.Data
             }
 
             if (file.Directory == "Data/")
-            {
                 return true;
-            }
 
             if (file.Directory.StartsWith("Data/Interface/"))
-            {
                 return true;
-            }
 
             if (file.Directory.StartsWith("Data/" + WoWRegeneration.CurrentSession.Locale))
-            {
                 return true;
-            }
+
+            if (WoWRegeneration.CurrentSession.Locale == "All" && file.Directory.Length == 10)
+                return true;
+
             return false;
         }
 

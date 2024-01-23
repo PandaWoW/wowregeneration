@@ -21,6 +21,7 @@ namespace WoWRegeneration.UI
                 Program.Log("[" + (RepositoriesManager.Repositories.IndexOf(item) + 1).ToString("00") + "] " +
                             item.GetVersionName());
             }
+
             Program.Log();
             Program.Log("Select version :");
             int selectedIndex = HandleUserParams(RepositoriesManager.Repositories.Count);
@@ -32,10 +33,10 @@ namespace WoWRegeneration.UI
             List<string> locales = manifest.GetLocales();
             Program.Log("Which locale do you want to use :");
             Program.Log();
+
             foreach (string item in locales)
-            {
                 Program.Log("[" + (locales.IndexOf(item) + 1).ToString("00") + "] " + item);
-            }
+
             Program.Log();
             Program.Log("Select locale :");
             int selectedIndex = HandleUserParams(locales.Count);
@@ -78,11 +79,11 @@ namespace WoWRegeneration.UI
                     string input = readLine.ToLower();
                     if (input != "y" && input != "n")
                     {
-                        Program.Log("Please enter a correct response 'y' for yes, 'n' for no, try again",
-                                    ConsoleColor.Red);
+                        Program.Log("Please enter a correct response 'y' for yes, 'n' for no, try again", ConsoleColor.Red);
                         continue;
                     }
-                    return (input == "y");
+
+                    return input == "y";
                 }
             }
         }
@@ -92,20 +93,19 @@ namespace WoWRegeneration.UI
             while (true)
             {
                 string input = Console.ReadLine();
-                int output;
-                bool result = int.TryParse(input, out output);
-                if (!result)
+
+                if (!int.TryParse(input, out var output))
                 {
                     Program.Log("Please enter a number, try again", ConsoleColor.Red);
                     continue;
                 }
+
                 if (!(output >= 1 && output <= max))
                 {
-                    Program.Log(
-                        "Please enter a number between 1 and " + max.ToString(CultureInfo.InvariantCulture) +
-                        ", try again", ConsoleColor.Red);
+                    Program.Log("Please enter a number between 1 and " + max.ToString(CultureInfo.InvariantCulture) + ", try again", ConsoleColor.Red);
                     continue;
                 }
+
                 return output - 1;
             }
         }

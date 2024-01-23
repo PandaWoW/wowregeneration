@@ -57,14 +57,14 @@ namespace WoWRegeneration.Data
                 Directory.CreateDirectory(BasePath + CurrentFile.Directory);
 
             string filePath = Path.Combine(BasePath, CurrentFile.Path);
-            
+
             // Delete unfinished downloads
             if (File.Exists(filePath))
             {
                 long fileSize;
                 using (FileStream stream = File.OpenRead(filePath))
                     fileSize = stream.Length;
-                
+
                 if (fileSize != CurrentFile.Size)
                     File.Delete(filePath);
                 else
